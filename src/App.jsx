@@ -571,6 +571,82 @@ function Home({ goDetail }) {
 
       <HeroSlider goDetail={goDetail} />
 
+      {/* ───── ISSUE 39 BANNER — Cinematic, right after hero ───── */}
+      <Reveal>
+        <section style={{
+          position: "relative", overflow: "hidden", cursor: "pointer",
+          background: C.greenDeep,
+        }}>
+          {/* Background image with desaturated treatment */}
+          <img src={`https://images.unsplash.com/${ARTICLES[0].img}?w=2000&h=600&fit=crop&q=80`} alt=""
+            style={{
+              position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+              opacity: 0.15, mixBlendMode: "luminosity",
+            }} />
+          {/* Gradient overlays */}
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${C.greenDeep} 0%, transparent 50%, ${C.greenDeep}ee 100%)` }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(15,42,30,0.7) 0%, transparent 100%)" }} />
+
+          {/* Large decorative number */}
+          <div style={{
+            position: "absolute", right: -20, top: "50%", transform: "translateY(-50%)",
+            fontFamily: FONT.serif, fontSize: "clamp(200px, 30vw, 400px)", fontWeight: 400, fontStyle: "italic",
+            color: "rgba(255,255,255,0.04)", lineHeight: 0.85, letterSpacing: "-0.05em",
+            userSelect: "none",
+          }}>39</div>
+
+          {/* Content */}
+          <div style={{
+            position: "relative", zIndex: 2,
+            padding: "72px 56px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <div>
+              <div style={{
+                display: "inline-block", padding: "6px 16px", marginBottom: 24,
+                border: `1px solid ${C.gold}`, color: C.gold,
+                fontFamily: FONT.sans, fontSize: 10, fontWeight: 600, letterSpacing: "0.35em", textTransform: "uppercase",
+              }}>
+                Now Available
+              </div>
+              <h2 style={{
+                fontFamily: FONT.serif, fontSize: "clamp(42px, 5vw, 72px)", fontWeight: 400,
+                color: C.white, margin: 0, lineHeight: 1, letterSpacing: "-0.02em",
+              }}>
+                Petals <span style={{ fontStyle: "italic", color: C.gold }}>Issue 39</span>
+              </h2>
+              <p style={{
+                fontFamily: FONT.sans, fontSize: 15, color: "rgba(255,255,255,0.4)", marginTop: 16,
+                fontWeight: 300, letterSpacing: "0.04em", maxWidth: 400,
+              }}>
+                Winter 2025 · 84 Pages · 12 Stories exploring the boundaries of scent, science, and culture.
+              </p>
+            </div>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 20,
+            }}>
+              <div style={{
+                width: 56, height: 1, background: "rgba(255,255,255,0.2)",
+              }} />
+              <div style={{
+                fontFamily: FONT.sans, fontSize: 12, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase",
+                color: C.white, padding: "16px 40px",
+                border: `2px solid rgba(255,255,255,0.25)`,
+                transition: "all 0.4s ease",
+                whiteSpace: "nowrap",
+              }}
+                onMouseEnter={e => { e.target.style.background = C.gold; e.target.style.color = C.greenDeep; e.target.style.borderColor = C.gold; }}
+                onMouseLeave={e => { e.target.style.background = "transparent"; e.target.style.color = C.white; e.target.style.borderColor = "rgba(255,255,255,0.25)"; }}>
+                Read This Issue →
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom accent line */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.gold}, transparent 60%)` }} />
+        </section>
+      </Reveal>
+
       {/* ───── SECTION: Latest — i-d.co style, green bg, 12 articles ───── */}
       <LatestSection goDetail={goDetail} />
 
@@ -717,55 +793,6 @@ function Home({ goDetail }) {
       </Reveal>
 
       {/* ───── SPACER ───── */}
-      <div style={{ height: 80, background: C.cream }} />
-
-      {/* ───── NEW ISSUE BANNER — Separated, clean, bold ───── */}
-      <Reveal>
-        <section style={{
-          margin: "0 56px", padding: "64px 48px",
-          background: C.charcoal,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", position: "relative", overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", inset: 0, opacity: 0.04,
-            backgroundImage: `repeating-linear-gradient(45deg, ${C.white} 0, ${C.white} 1px, transparent 0, transparent 50%)`,
-            backgroundSize: "18px 18px",
-          }} />
-          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-            <div style={{
-              fontFamily: FONT.sans, fontSize: 11, fontWeight: 500, letterSpacing: "0.4em", textTransform: "uppercase",
-              color: "rgba(255,255,255,0.35)", marginBottom: 20,
-            }}>
-              Now Available
-            </div>
-            <div style={{
-              fontFamily: FONT.serif, fontSize: "clamp(36px, 4.5vw, 64px)", fontWeight: 400,
-              color: C.white, lineHeight: 1.05, letterSpacing: "-0.02em",
-            }}>
-              Petals <span style={{ fontWeight: 500, fontStyle: "italic" }}>Issue 39</span> is Out.
-            </div>
-            <div style={{
-              fontFamily: FONT.sans, fontSize: 14, color: "rgba(255,255,255,0.4)", marginTop: 16,
-              letterSpacing: "0.1em", fontWeight: 300,
-            }}>
-              Winter 2025 · 84 Pages · 12 Stories
-            </div>
-            <div style={{
-              marginTop: 32, display: "inline-block",
-              fontFamily: FONT.sans, fontSize: 12, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase",
-              color: C.white, padding: "14px 36px",
-              border: `2px solid rgba(255,255,255,0.3)`,
-              transition: "all 0.4s ease",
-            }}
-              onMouseEnter={e => { e.target.style.background = C.white; e.target.style.color = C.charcoal; e.target.style.borderColor = C.white; }}
-              onMouseLeave={e => { e.target.style.background = "transparent"; e.target.style.color = C.white; e.target.style.borderColor = "rgba(255,255,255,0.3)"; }}>
-              Read This Issue →
-            </div>
-          </div>
-        </section>
-      </Reveal>
-
       <div style={{ height: 80, background: C.cream }} />
 
       {/* ───── SECTION: Do Not Miss — 3-article stagger with depth ───── */}
