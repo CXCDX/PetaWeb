@@ -103,48 +103,114 @@ function Img({ src, h = 500, style = {} }) {
 }
 
 // ═══════════════════════════════════════
-// NAV — Taller, bolder
+// NAV — With hamburger menu, no "Journal"
 // ═══════════════════════════════════════
-function Nav({ view, setView, scrollY }) {
+function Nav({ view, setView, scrollY, scrollToSection }) {
   const solid = scrollY > 60;
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const menuItems = [
+    { k: "home", l: "Latest Issue", action: () => { setView("home"); setMenuOpen(false); } },
+    { k: "issues", l: "Issues", action: () => { setView("issues"); setMenuOpen(false); } },
+    { k: "editorpicks", l: "Editor's Picks", action: () => { setView("home"); setMenuOpen(false); setTimeout(() => scrollToSection && scrollToSection("editorpicks"), 100); } },
+    { k: "sustainability", l: "Sustainability", action: () => { setView("home"); setMenuOpen(false); setTimeout(() => scrollToSection && scrollToSection("sustainability"), 100); } },
+    { k: "donotmiss", l: "Do Not Miss", action: () => { setView("home"); setMenuOpen(false); setTimeout(() => scrollToSection && scrollToSection("donotmiss"), 100); } },
+    { k: "contact", l: "Contact", action: () => { setView("home"); setMenuOpen(false); setTimeout(() => scrollToSection && scrollToSection("footer"), 100); } },
+  ];
+
   return (
-    <nav style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 999,
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 48px", height: 84,
-      background: solid ? "rgba(245,240,235,0.96)" : "transparent",
-      backdropFilter: solid ? "blur(28px)" : "none",
-      borderBottom: solid ? `1.5px solid rgba(200,196,190,0.5)` : "1.5px solid transparent",
-      transition: "all 0.5s ease",
-    }}>
-      <div onClick={() => setView("home")} style={{ cursor: "pointer" }}>
-        <span style={{
-          fontFamily: FONT.serif, fontSize: 28, fontWeight: 500,
-          letterSpacing: "0.12em", textTransform: "uppercase",
-          color: solid ? C.charcoal : C.white,
-          transition: "color 0.5s",
-        }}>Petals</span>
+    <>
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 999,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 48px", height: 84,
+        background: solid ? "rgba(245,240,235,0.96)" : "transparent",
+        backdropFilter: solid ? "blur(28px)" : "none",
+        borderBottom: solid ? `1.5px solid rgba(200,196,190,0.5)` : "1.5px solid transparent",
+        transition: "all 0.5s ease",
+      }}>
+        <div onClick={() => setView("home")} style={{ cursor: "pointer", display: "flex", alignItems: "baseline", gap: 12 }}>
+          <span style={{
+            fontFamily: FONT.serif, fontSize: 28, fontWeight: 500,
+            letterSpacing: "0.12em", textTransform: "uppercase",
+            color: solid ? C.charcoal : C.white,
+            transition: "color 0.5s",
+          }}>Petals</span>
+          <span style={{
+            fontFamily: FONT.sans, fontSize: 9, fontWeight: 500,
+            letterSpacing: "0.25em", textTransform: "uppercase",
+            color: solid ? C.greyMed : "rgba(255,255,255,0.35)",
+            transition: "color 0.5s",
+          }}>Home</span>
+        </div>
+        <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          <a href="https://gulcicek.com" target="_blank" rel="noopener noreferrer" style={{
+            fontFamily: FONT.sans, fontSize: 11, fontWeight: 400,
+            color: solid ? C.greyMed : "rgba(255,255,255,0.35)",
+            textDecoration: "none", letterSpacing: "0.06em", transition: "color 0.4s",
+          }}>Gülçiçek ↗</a>
+          {/* Hamburger button */}
+          <div onClick={() => setMenuOpen(!menuOpen)} style={{
+            cursor: "pointer", width: 36, height: 36,
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+            position: "relative", zIndex: 1002,
+          }}>
+            <span style={{
+              display: "block", width: 24, height: 2,
+              background: menuOpen ? C.white : (solid ? C.charcoal : C.white),
+              transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
+              transform: menuOpen ? "rotate(45deg) translateY(4px)" : "none",
+            }} />
+            <span style={{
+              display: "block", width: 24, height: 2,
+              background: menuOpen ? C.white : (solid ? C.charcoal : C.white),
+              transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
+              transform: menuOpen ? "rotate(-45deg) translateY(-4px)" : "none",
+              opacity: menuOpen ? 1 : 1,
+            }} />
+          </div>
+        </div>
+      </nav>
+
+      {/* Fullscreen menu overlay */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 998,
+        background: C.greenDeep,
+        opacity: menuOpen ? 1 : 0,
+        pointerEvents: menuOpen ? "auto" : "none",
+        transition: "opacity 0.5s cubic-bezier(0.16,1,0.3,1)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <div style={{ textAlign: "center" }}>
+          {menuItems.map((item, i) => (
+            <div key={item.k}
+              onClick={item.action}
+              style={{
+                fontFamily: FONT.serif, fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 400,
+                color: C.white, cursor: "pointer",
+                padding: "16px 0", lineHeight: 1.3,
+                letterSpacing: "-0.01em",
+                opacity: menuOpen ? 1 : 0,
+                transform: menuOpen ? "translateY(0)" : "translateY(24px)",
+                transition: `all 0.6s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.06}s`,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.gold; e.currentTarget.style.fontStyle = "italic"; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.white; e.currentTarget.style.fontStyle = "normal"; }}>
+              {item.l}
+            </div>
+          ))}
+          <div style={{
+            marginTop: 48, opacity: menuOpen ? 1 : 0,
+            transition: `opacity 0.6s ease ${0.5}s`,
+          }}>
+            <a href="https://gulcicek.com" target="_blank" rel="noopener noreferrer" style={{
+              fontFamily: FONT.sans, fontSize: 13, color: "rgba(255,255,255,0.3)",
+              textDecoration: "none", letterSpacing: "0.1em",
+            }}>gulcicek.com ↗</a>
+          </div>
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
-        {[
-          { k: "home", l: "Journal" },
-          { k: "issues", l: "Archive" },
-          { k: "pages", l: "Pages" },
-        ].map(n => (
-          <span key={n.k} onClick={() => setView(n.k)} style={{
-            fontFamily: FONT.sans, fontSize: 12, fontWeight: view === n.k ? 500 : 400,
-            letterSpacing: "0.14em", textTransform: "uppercase",
-            color: solid ? (view === n.k ? C.charcoal : C.grey) : (view === n.k ? C.white : "rgba(255,255,255,0.55)"),
-            cursor: "pointer", transition: "color 0.4s",
-          }}>{n.l}</span>
-        ))}
-        <a href="https://gulcicek.com" target="_blank" rel="noopener noreferrer" style={{
-          fontFamily: FONT.sans, fontSize: 11, fontWeight: 400,
-          color: solid ? C.greyMed : "rgba(255,255,255,0.35)",
-          textDecoration: "none", letterSpacing: "0.06em", transition: "color 0.4s",
-        }}>Gülçiçek ↗</a>
-      </div>
-    </nav>
+    </>
   );
 }
 
@@ -508,59 +574,127 @@ function Home({ goDetail }) {
       {/* ───── SECTION: Latest — i-d.co style, green bg, 12 articles ───── */}
       <LatestSection goDetail={goDetail} />
 
-      {/* ───── SECTION: Editor's Picks — left-aligned with sticky image ───── */}
-      <section style={{ padding: "100px 56px 120px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-        <div style={{ paddingRight: 60 }}>
-          <Reveal>
-            <div style={{
-              fontFamily: FONT.sans, fontSize: 14, fontWeight: 600,
-              letterSpacing: "0.35em", textTransform: "uppercase", color: C.green,
-              marginBottom: 48, paddingBottom: 16,
-              borderBottom: `3px solid ${C.green}`,
-              display: "inline-block",
-            }}>
-              Editor's Picks
-            </div>
-          </Reveal>
-          {ARTICLES.slice(0, 6).map((a, i) => (
-            <Reveal key={a.id} delay={i * 0.06}>
-              <div onClick={() => goDetail(a)} style={{
-                cursor: "pointer", padding: "28px 0",
-                borderTop: `2px solid ${C.greyLight}`,
-                display: "flex", gap: 20, alignItems: "baseline",
-                transition: "all 0.3s ease",
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(27,61,47,0.03)"; e.currentTarget.style.paddingLeft = "12px"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.paddingLeft = "0"; }}>
-                <span style={{ fontFamily: FONT.serif, fontSize: 16, color: C.greyLight, fontStyle: "italic", minWidth: 28, fontWeight: 400 }}>{String(i + 1).padStart(2, "0")}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: FONT.sans, fontSize: 10, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", color: C.greyMed, marginBottom: 6 }}>
-                    {a.cat} · Issue {a.issue}
-                  </div>
-                  <h4 style={{ fontFamily: FONT.serif, fontSize: 26, fontWeight: 400, color: C.charcoal, margin: "0 0 6px", lineHeight: 1.15, letterSpacing: "-0.01em" }}>{a.t}</h4>
-                  <p style={{ fontFamily: FONT.sans, fontSize: 13, color: C.grey, margin: 0, fontWeight: 300, lineHeight: 1.5 }}>{a.sub}</p>
-                </div>
-                <span style={{ fontFamily: FONT.sans, fontSize: 18, color: C.greyMed, transition: "all 0.3s ease", fontWeight: 400 }}>→</span>
+      {/* ───── SECTION: Editor's Picks — image cards with text overlay ───── */}
+      <section id="section-editorpicks" style={{ padding: "100px 56px 120px" }}>
+        <Reveal>
+          <div style={{ marginBottom: 56, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <div style={{
+                fontFamily: FONT.sans, fontSize: 14, fontWeight: 600,
+                letterSpacing: "0.35em", textTransform: "uppercase", color: C.green,
+                marginBottom: 16, paddingBottom: 16,
+                borderBottom: `3px solid ${C.green}`,
+                display: "inline-block",
+              }}>
+                Editor's Picks
               </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delay={0.2}>
-          <div style={{ position: "sticky", top: 100 }}>
-            <Img src={ARTICLES[0].img} h={720} style={{
-              boxShadow: `0 16px 64px ${C.shadowDeep}, 0 4px 16px ${C.shadowMid}`,
-            }} />
-            <div style={{ marginTop: 18 }}>
-              <span style={{ fontFamily: FONT.sans, fontSize: 12, color: C.grey, letterSpacing: "0.1em", fontWeight: 400 }}>Petals Issue 39 · Curated by the editors</span>
+              <div style={{ fontFamily: FONT.sans, fontSize: 14, color: C.grey, fontWeight: 300, marginTop: 8 }}>
+                Curated by the editors · Issue 39
+              </div>
             </div>
           </div>
         </Reveal>
+
+        {/* Dynamic mosaic grid — first row: 1 large + 2 stacked, second row: 3 equal */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gridTemplateRows: "380px 380px", gap: 20 }}>
+          {ARTICLES.slice(0, 6).map((a, i) => {
+            const gridPos = [
+              { gridColumn: "1 / 2", gridRow: "1 / 3" },   // tall left
+              { gridColumn: "2 / 3", gridRow: "1 / 2" },   // top mid
+              { gridColumn: "3 / 4", gridRow: "1 / 2" },   // top right
+              { gridColumn: "2 / 3", gridRow: "2 / 3" },   // bottom mid
+              { gridColumn: "3 / 4", gridRow: "2 / 3" },   // bottom right (will be replaced)
+              null,
+            ][i];
+            // Last item spans bottom right as a wide banner
+            if (i === 4) return (
+              <Reveal key={a.id} delay={i * 0.08} style={{ gridColumn: "3 / 4", gridRow: "2 / 3" }}>
+                <div onClick={() => goDetail(a)} style={{
+                  position: "relative", overflow: "hidden", height: "100%", cursor: "pointer",
+                  boxShadow: `0 8px 32px ${C.shadowMid}`,
+                  transition: "box-shadow 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 20px 56px ${C.shadowDeep}`; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 8px 32px ${C.shadowMid}`; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  <img src={`https://images.unsplash.com/${a.img}?w=800&h=800&fit=crop&q=85`} alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 1s cubic-bezier(0.16,1,0.3,1)" }}
+                    onMouseEnter={e => e.target.style.transform = "scale(1.05)"}
+                    onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%)" }} />
+                  <div style={{ position: "absolute", top: 20, left: 22 }}>
+                    <span style={{ fontFamily: FONT.sans, fontSize: 9, fontWeight: 600, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>{a.cat}</span>
+                  </div>
+                  <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+                    <span style={{ fontFamily: FONT.serif, fontSize: 14, color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>{String(i + 1).padStart(2, "0")}</span>
+                    <h4 style={{ fontFamily: FONT.serif, fontSize: 22, fontWeight: 400, color: C.white, margin: "6px 0 4px", lineHeight: 1.1, letterSpacing: "-0.01em" }}>{a.t}</h4>
+                    <p style={{ fontFamily: FONT.sans, fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0, fontWeight: 300, lineHeight: 1.4 }}>{a.sub}</p>
+                  </div>
+                </div>
+              </Reveal>
+            );
+            if (i === 5) return (
+              <Reveal key={a.id} delay={i * 0.08} style={{ gridColumn: "1 / 4", marginTop: 12 }}>
+                <div onClick={() => goDetail(a)} style={{
+                  position: "relative", overflow: "hidden", height: 220, cursor: "pointer",
+                  boxShadow: `0 8px 32px ${C.shadowMid}`,
+                  display: "flex",
+                  transition: "box-shadow 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 20px 56px ${C.shadowDeep}`; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 8px 32px ${C.shadowMid}`; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  <img src={`https://images.unsplash.com/${a.img}?w=1600&h=500&fit=crop&q=85`} alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 1s cubic-bezier(0.16,1,0.3,1)" }}
+                    onMouseEnter={e => e.target.style.transform = "scale(1.03)"}
+                    onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }} />
+                  <div style={{ position: "absolute", bottom: 28, left: 36, right: 36 }}>
+                    <span style={{ fontFamily: FONT.sans, fontSize: 9, fontWeight: 600, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>{a.cat}</span>
+                    <h4 style={{ fontFamily: FONT.serif, fontSize: 30, fontWeight: 400, color: C.white, margin: "8px 0 6px", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{a.t}</h4>
+                    <p style={{ fontFamily: FONT.sans, fontSize: 13, color: "rgba(255,255,255,0.45)", margin: 0, fontWeight: 300, lineHeight: 1.4 }}>{a.sub}</p>
+                  </div>
+                </div>
+              </Reveal>
+            );
+            if (!gridPos) return null;
+            const isTall = i === 0;
+            return (
+              <Reveal key={a.id} delay={i * 0.08} style={gridPos}>
+                <div onClick={() => goDetail(a)} style={{
+                  position: "relative", overflow: "hidden", height: "100%", cursor: "pointer",
+                  boxShadow: `0 8px 32px ${C.shadowMid}`,
+                  transition: "box-shadow 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 20px 56px ${C.shadowDeep}`; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 8px 32px ${C.shadowMid}`; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  <img src={`https://images.unsplash.com/${a.img}?w=${isTall ? 1000 : 800}&h=${isTall ? 1400 : 800}&fit=crop&q=85`} alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 1s cubic-bezier(0.16,1,0.3,1)" }}
+                    onMouseEnter={e => e.target.style.transform = "scale(1.05)"}
+                    onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                  <div style={{ position: "absolute", inset: 0, background: isTall
+                    ? "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)"
+                    : "linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.7) 100%)" }} />
+                  <div style={{ position: "absolute", top: 20, left: 22 }}>
+                    <span style={{ fontFamily: FONT.sans, fontSize: 9, fontWeight: 600, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>{a.cat}</span>
+                  </div>
+                  <div style={{ position: "absolute", bottom: isTall ? 36 : 22, left: isTall ? 32 : 22, right: isTall ? 32 : 22 }}>
+                    <span style={{ fontFamily: FONT.serif, fontSize: isTall ? 18 : 14, color: "rgba(255,255,255,0.3)", fontStyle: "italic" }}>{String(i + 1).padStart(2, "0")}</span>
+                    <h4 style={{
+                      fontFamily: FONT.serif, fontSize: isTall ? 36 : 22, fontWeight: 400, color: C.white,
+                      margin: "8px 0 6px", lineHeight: 1.08, letterSpacing: "-0.01em",
+                      textShadow: "0 2px 16px rgba(0,0,0,0.4)",
+                    }}>{a.t}</h4>
+                    <p style={{ fontFamily: FONT.sans, fontSize: isTall ? 14 : 12, color: "rgba(255,255,255,0.5)", margin: 0, fontWeight: 300, lineHeight: 1.4 }}>{a.sub}</p>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
       </section>
 
       {/* ───── FULL BLEED: Sustainability banner ───── */}
       <Reveal>
-        <section onClick={() => goDetail(ARTICLES[3])} style={{
+        <section id="section-sustainability" onClick={() => goDetail(ARTICLES[3])} style={{
           position: "relative", height: "64vh", overflow: "hidden", cursor: "pointer",
         }}>
           <img src={`https://images.unsplash.com/${ARTICLES[3].img}?w=2000&h=1000&fit=crop&q=85`} alt=""
@@ -635,7 +769,7 @@ function Home({ goDetail }) {
       <div style={{ height: 80, background: C.cream }} />
 
       {/* ───── SECTION: Do Not Miss — 3-article stagger with depth ───── */}
-      <section style={{ padding: "40px 56px 120px" }}>
+      <section id="section-donotmiss" style={{ padding: "40px 56px 120px" }}>
         <Reveal>
           <div style={{
             fontFamily: FONT.sans, fontSize: 14, fontWeight: 600,
@@ -829,112 +963,252 @@ function IssuesSlider() {
 }
 
 // ═══════════════════════════════════════
-// ISSUES ARCHIVE PAGE
+// ISSUES ARCHIVE PAGE — Creative, dynamic layout
 // ═══════════════════════════════════════
-function IssuesPage() {
+
+// Color themes per issue — unique visual identity
+const ISSUE_THEMES = [
+  { bg: "#1B3D2F", accent: "#C4A35A", label: "Winter 2025" },
+  { bg: "#2C1810", accent: "#D4896A", label: "Autumn 2024" },
+  { bg: "#1A1A2E", accent: "#7B8CDE", label: "Summer 2024" },
+  { bg: "#3D2B1B", accent: "#E8C87A", label: "Spring 2024" },
+  { bg: "#0D2137", accent: "#6BBCD4", label: "Winter 2024" },
+  { bg: "#2D1F3D", accent: "#B88AD4", label: "Autumn 2023" },
+];
+
+function IssueDetailView({ issue, onBack }) {
+  const [entered, setEntered] = useState(false);
+  useEffect(() => { setTimeout(() => setEntered(true), 100); }, []);
+  const theme = ISSUE_THEMES[(39 - issue.num) % ISSUE_THEMES.length];
+  const issueArticles = ARTICLES.filter(a => a.issue === issue.num).length > 0
+    ? ARTICLES.filter(a => a.issue === issue.num)
+    : ARTICLES.slice(0, 6);
+
+  return (
+    <div style={{ background: C.cream, minHeight: "100vh" }}>
+      {/* Hero banner for this specific issue */}
+      <section style={{
+        height: "70vh", position: "relative", overflow: "hidden",
+        background: theme.bg,
+      }}>
+        <img src={`https://images.unsplash.com/${issue.img}?w=2000&h=1200&fit=crop&q=85`} alt=""
+          style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            opacity: entered ? 0.4 : 0, transition: "opacity 1.5s ease",
+            mixBlendMode: "luminosity",
+          }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${theme.bg}dd 0%, transparent 40%, ${theme.bg}ee 100%)` }} />
+        <div style={{
+          position: "absolute", top: "50%", left: 56, transform: "translateY(-50%)", zIndex: 2,
+          opacity: entered ? 1 : 0, transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.3s",
+        }}>
+          <div style={{ fontFamily: FONT.sans, fontSize: 12, fontWeight: 500, letterSpacing: "0.3em", textTransform: "uppercase", color: theme.accent, marginBottom: 20 }}>
+            {issue.season} {issue.year}
+          </div>
+          <div style={{
+            fontFamily: FONT.serif, fontSize: "clamp(80px, 15vw, 200px)", fontWeight: 400, fontStyle: "italic",
+            color: "rgba(255,255,255,0.08)", lineHeight: 0.85, letterSpacing: "-0.04em",
+            position: "absolute", top: -40, left: -8,
+          }}>{issue.num}</div>
+          <h1 style={{
+            fontFamily: FONT.serif, fontSize: "clamp(48px, 7vw, 88px)", fontWeight: 400,
+            color: C.white, margin: 0, lineHeight: 0.95, letterSpacing: "-0.03em", position: "relative",
+          }}>
+            Petals<br /><span style={{ fontStyle: "italic", color: theme.accent }}>No. {issue.num}</span>
+          </h1>
+          <p style={{ fontFamily: FONT.sans, fontSize: 15, color: "rgba(255,255,255,0.4)", marginTop: 20, fontWeight: 300 }}>
+            84 Pages · 12 Stories · {issue.season} Edition
+          </p>
+        </div>
+        <div onClick={onBack} style={{
+          position: "absolute", top: 110, left: 56, zIndex: 10,
+          fontFamily: FONT.sans, fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.5)",
+          cursor: "pointer", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 8,
+          padding: "10px 20px", border: `1.5px solid rgba(255,255,255,0.2)`,
+          transition: "all 0.3s ease",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}>
+          ← All Issues
+        </div>
+        {/* Accent line */}
+        <div style={{ position: "absolute", bottom: 0, left: 56, right: 56, height: 3, background: theme.accent, opacity: 0.6 }} />
+      </section>
+
+      {/* Articles in this issue */}
+      <section style={{ padding: "80px 56px 120px" }}>
+        <Reveal>
+          <div style={{ fontFamily: FONT.sans, fontSize: 14, fontWeight: 600, letterSpacing: "0.35em", textTransform: "uppercase", color: C.green, marginBottom: 48 }}>
+            In This Issue
+          </div>
+        </Reveal>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 32 }}>
+          {issueArticles.map((a, i) => (
+            <Reveal key={a.id} delay={i * 0.1}>
+              <div style={{
+                cursor: "pointer",
+                marginTop: i % 3 === 1 ? 48 : 0,
+                transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+              }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-8px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+                <div style={{
+                  position: "relative", overflow: "hidden", height: 320,
+                  boxShadow: `0 8px 32px ${C.shadowMid}`,
+                  transition: "box-shadow 0.5s ease",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = `0 20px 56px ${C.shadowDeep}`}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = `0 8px 32px ${C.shadowMid}`}>
+                  <img src={`https://images.unsplash.com/${a.img}?w=800&h=700&fit=crop&q=85`} alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)" }}
+                    onMouseEnter={e => e.target.style.transform = "scale(1.05)"}
+                    onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%)" }} />
+                  <div style={{ position: "absolute", bottom: 22, left: 22, right: 22 }}>
+                    <span style={{ fontFamily: FONT.sans, fontSize: 9, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: theme.accent }}>{a.cat}</span>
+                    <h4 style={{ fontFamily: FONT.serif, fontSize: 24, fontWeight: 400, color: C.white, margin: "6px 0 0", lineHeight: 1.1 }}>{a.t}</h4>
+                  </div>
+                </div>
+                <div style={{ padding: "16px 0" }}>
+                  <p style={{ fontFamily: FONT.sans, fontSize: 13, color: C.grey, margin: 0, fontWeight: 300, lineHeight: 1.5 }}>{a.sub}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+      <Footer />
+    </div>
+  );
+}
+
+function IssuesPage({ onSelectIssue }) {
+  // Group issues into featured (latest), recent, and older
+  const featured = ISSUES[0];
+  const recent = ISSUES.slice(1, 5);
+  const older = ISSUES.slice(5);
+
   return (
     <div style={{ background: C.cream, minHeight: "100vh", paddingTop: 120 }}>
-      <div style={{ padding: "0 56px 64px" }}>
+      {/* Header */}
+      <div style={{ padding: "0 56px 24px" }}>
         <Reveal>
-          <h1 style={{ fontFamily: FONT.serif, fontSize: "clamp(56px, 8vw, 100px)", fontWeight: 400, color: C.charcoal, margin: "0 0 8px", lineHeight: 0.95, letterSpacing: "-0.03em" }}>Archive</h1>
+          <div style={{
+            fontFamily: FONT.sans, fontSize: 14, fontWeight: 600,
+            letterSpacing: "0.35em", textTransform: "uppercase", color: C.green,
+            marginBottom: 16, paddingBottom: 16,
+            borderBottom: `3px solid ${C.green}`, display: "inline-block",
+          }}>Issues</div>
+          <h1 style={{ fontFamily: FONT.serif, fontSize: "clamp(56px, 8vw, 100px)", fontWeight: 400, color: C.charcoal, margin: "0 0 8px", lineHeight: 0.95, letterSpacing: "-0.03em" }}>
+            The Archive
+          </h1>
           <p style={{ fontFamily: FONT.sans, fontSize: 15, color: C.grey, margin: 0, fontWeight: 300 }}>39 issues · 2010 – 2025 · Every story preserved.</p>
         </Reveal>
       </div>
-      <div style={{ padding: "0 56px 120px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 24 }}>
-        {ISSUES.map((iss, i) => (
-          <Reveal key={iss.num} delay={Math.min(i * 0.03, 0.5)}>
-            <div style={{
+
+      {/* Featured latest issue — full width hero */}
+      <Reveal>
+        <div onClick={() => onSelectIssue(featured)} style={{
+          margin: "48px 56px 0", position: "relative", height: "50vh", overflow: "hidden", cursor: "pointer",
+          boxShadow: `0 16px 64px ${C.shadowDeep}`,
+          transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+        }}
+          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-6px)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+          <img src={`https://images.unsplash.com/${featured.img}?w=2000&h=1000&fit=crop&q=90`} alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1)" }}
+            onMouseEnter={e => e.target.style.transform = "scale(1.03)"}
+            onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(15,42,30,0.88) 0%, rgba(15,42,30,0.3) 60%, transparent 100%)" }} />
+          <div style={{ position: "absolute", top: "50%", left: 48, transform: "translateY(-50%)", zIndex: 2 }}>
+            <div style={{ fontFamily: FONT.sans, fontSize: 11, fontWeight: 600, letterSpacing: "0.35em", textTransform: "uppercase", color: C.gold, marginBottom: 16 }}>Latest Issue</div>
+            <h2 style={{ fontFamily: FONT.serif, fontSize: "clamp(48px, 6vw, 80px)", fontWeight: 400, color: C.white, margin: 0, lineHeight: 0.95, letterSpacing: "-0.02em" }}>
+              No. {featured.num}
+            </h2>
+            <p style={{ fontFamily: FONT.sans, fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 14, fontWeight: 300 }}>
+              {featured.season} {featured.year} · 84 Pages
+            </p>
+          </div>
+          <div style={{
+            position: "absolute", bottom: 32, right: 48,
+            fontFamily: FONT.serif, fontSize: 140, color: "rgba(255,255,255,0.06)", lineHeight: 1, fontWeight: 400,
+          }}>{featured.num}</div>
+        </div>
+      </Reveal>
+
+      {/* Recent 4 issues — asymmetric grid */}
+      <div style={{ padding: "48px 56px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 24 }}>
+        {recent.map((iss, i) => (
+          <Reveal key={iss.num} delay={i * 0.1}>
+            <div onClick={() => onSelectIssue(iss)} style={{
               cursor: "pointer",
+              marginTop: i % 2 === 1 ? 40 : 0,
               transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
             }}
               onMouseEnter={e => e.currentTarget.style.transform = "translateY(-8px)"}
               onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
               <div style={{
                 position: "relative", overflow: "hidden",
-                boxShadow: `0 6px 24px ${C.shadowMid}, 0 2px 8px ${C.shadow}`,
+                boxShadow: `0 8px 32px ${C.shadowMid}`,
                 transition: "box-shadow 0.5s ease",
               }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = `0 16px 48px ${C.shadowDeep}, 0 4px 16px ${C.shadowMid}`}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = `0 6px 24px ${C.shadowMid}, 0 2px 8px ${C.shadow}`}>
-                <img src={`https://images.unsplash.com/${iss.img}?w=400&h=560&fit=crop`} alt=""
-                  style={{ width: "100%", aspectRatio: "5/7", objectFit: "cover", display: "block", transition: "transform 0.7s ease" }}
-                  onMouseEnter={e => e.target.style.transform = "scale(1.04)"}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = `0 20px 56px ${C.shadowDeep}`}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = `0 8px 32px ${C.shadowMid}`}>
+                <img src={`https://images.unsplash.com/${iss.img}?w=600&h=840&fit=crop`} alt=""
+                  style={{ width: "100%", aspectRatio: "5/7", objectFit: "cover", display: "block", transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)" }}
+                  onMouseEnter={e => e.target.style.transform = "scale(1.05)"}
                   onMouseLeave={e => e.target.style.transform = "scale(1)"} />
-                <div style={{
-                  position: "absolute", inset: 0,
-                  background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.35) 100%)",
-                }} />
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontFamily: FONT.serif, fontSize: 56, color: "rgba(255,255,255,0.12)", fontWeight: 400 }}>{iss.num}</span>
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%)" }} />
+                <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
+                  <div style={{ fontFamily: FONT.serif, fontSize: 36, color: C.white, fontWeight: 400, lineHeight: 1 }}>{iss.num}</div>
+                  <div style={{ fontFamily: FONT.sans, fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 6, fontWeight: 400, letterSpacing: "0.08em" }}>{iss.season} {iss.year}</div>
                 </div>
               </div>
-              <div style={{ marginTop: 14 }}>
-                <div style={{ fontFamily: FONT.sans, fontSize: 13, color: C.charcoal, fontWeight: 500 }}>No. {iss.num}</div>
-                <span style={{ fontFamily: FONT.sans, fontSize: 11, color: C.grey, fontWeight: 400 }}>{iss.season} {iss.year}</span>
-              </div>
             </div>
           </Reveal>
         ))}
       </div>
-      <Footer />
-    </div>
-  );
-}
 
-// ═══════════════════════════════════════
-// PAGES VIEW
-// ═══════════════════════════════════════
-function PagesView() {
-  const [sel, setSel] = useState(null);
-  const imgs = ["photo-1615634260167-c8cdede054de","photo-1541643600914-78b084683601","photo-1588405748880-12d1d2a59f75","photo-1595425964272-fc617fa19dfa","photo-1547887538-e3a2f32cb1cc","photo-1563170351-be82bc888aa4","photo-1559825481-12a05cc00344","photo-1501443762994-82bd5dace89a","photo-1524231757912-21f4fe3a7200","photo-1441974231531-c6227db76b6e","photo-1518770660439-4636190af475","photo-1416879595882-3373a0480b5b"];
-  return (
-    <div style={{ background: C.cream, minHeight: "100vh", paddingTop: 120 }}>
-      <div style={{ padding: "0 56px 48px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      {/* Divider */}
+      <div style={{ padding: "64px 56px 0" }}>
         <Reveal>
-          <h1 style={{ fontFamily: FONT.serif, fontSize: "clamp(56px, 8vw, 100px)", fontWeight: 400, color: C.charcoal, margin: "0 0 8px", lineHeight: 0.95, letterSpacing: "-0.03em" }}>Pages</h1>
-          <p style={{ fontFamily: FONT.sans, fontSize: 15, color: C.grey, margin: 0, fontWeight: 300 }}>Issue 39 · 84 pages · Click to enlarge</p>
-        </Reveal>
-        <select style={{ fontFamily: FONT.sans, fontSize: 12, fontWeight: 500, background: "transparent", color: C.charcoal, border: `2px solid ${C.greyLight}`, padding: "12px 20px", cursor: "pointer" }}>
-          {[39,38,37,36,35].map(n=><option key={n}>Issue {n}</option>)}
-        </select>
-      </div>
-      <div style={{ padding: "0 56px 120px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 18 }}>
-        {Array.from({length:24},(_,i)=>(
-          <Reveal key={i} delay={Math.min(i*0.03,0.4)}>
-            <div onClick={()=>setSel(i===sel?null:i)} style={{ cursor: "pointer", overflow: "hidden" }}>
-              <div style={{
-                boxShadow: `0 4px 20px ${C.shadowMid}`,
-                overflow: "hidden",
-                transition: "box-shadow 0.4s ease, transform 0.4s ease",
-              }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 12px 40px ${C.shadowDeep}`; e.currentTarget.style.transform = "translateY(-4px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 4px 20px ${C.shadowMid}`; e.currentTarget.style.transform = "translateY(0)"; }}>
-                <img src={`https://images.unsplash.com/${imgs[i%12]}?w=320&h=448&fit=crop`} alt=""
-                  style={{ width: "100%", aspectRatio: "5/7", objectFit: "cover", display: "block", transition: "transform 0.5s" }}
-                  onMouseEnter={e=>e.target.style.transform="scale(1.03)"}
-                  onMouseLeave={e=>e.target.style.transform="scale(1)"} />
-              </div>
-              <div style={{ fontFamily: FONT.sans, fontSize: 11, color: C.grey, marginTop: 10, letterSpacing: "0.05em", fontWeight: 500 }}>{String(i+1).padStart(2,"0")}</div>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-      {sel !== null && (
-        <div onClick={() => setSel(null)} style={{
-          position: "fixed", inset: 0, zIndex: 9999,
-          background: "rgba(26,26,26,0.95)", display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "zoom-out",
-        }}>
-          <img src={`https://images.unsplash.com/${imgs[sel%12]}?w=900&h=1260&fit=crop&q=90`} alt=""
-            style={{ maxHeight: "92vh", maxWidth: "90vw", objectFit: "contain" }} />
-          <div style={{ position: "absolute", bottom: 28, fontFamily: FONT.sans, fontSize: 13, color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em", fontWeight: 400 }}>
-            Page {sel + 1} / 84
+          <div style={{ borderTop: `2px solid ${C.greyLight}`, paddingTop: 40 }}>
+            <span style={{ fontFamily: FONT.sans, fontSize: 13, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", color: C.greyMed }}>
+              All Issues · {older.length} more
+            </span>
           </div>
-          <div onClick={() => setSel(null)} style={{
-            position: "absolute", top: 24, right: 32, fontFamily: FONT.sans, fontSize: 18, color: "rgba(255,255,255,0.4)", cursor: "pointer",
-          }}>✕</div>
+        </Reveal>
+      </div>
+
+      {/* Older issues — compact horizontal rows, 2 per row with image + text */}
+      <div style={{ padding: "32px 56px 120px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          {older.map((iss, i) => (
+            <Reveal key={iss.num} delay={Math.min(i * 0.03, 0.4)}>
+              <div onClick={() => onSelectIssue(iss)} style={{
+                cursor: "pointer", display: "flex", gap: 20, alignItems: "center",
+                padding: 16, transition: "all 0.35s ease",
+                borderBottom: `1px solid ${C.greyLight}`,
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(27,61,47,0.03)"; e.currentTarget.style.paddingLeft = "24px"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.paddingLeft = "16px"; }}>
+                <div style={{
+                  width: 72, height: 100, overflow: "hidden", flexShrink: 0,
+                  boxShadow: `0 4px 16px ${C.shadow}`,
+                }}>
+                  <img src={`https://images.unsplash.com/${iss.img}?w=144&h=200&fit=crop`} alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: FONT.serif, fontSize: 22, color: C.charcoal, fontWeight: 400 }}>No. {iss.num}</div>
+                  <div style={{ fontFamily: FONT.sans, fontSize: 12, color: C.grey, marginTop: 4, fontWeight: 400 }}>{iss.season} {iss.year}</div>
+                </div>
+                <span style={{ fontFamily: FONT.sans, fontSize: 18, color: C.greyMed, fontWeight: 300 }}>→</span>
+              </div>
+            </Reveal>
+          ))}
         </div>
-      )}
+      </div>
       <Footer />
     </div>
   );
@@ -1023,7 +1297,7 @@ function Detail({ article, onBack }) {
 // ═══════════════════════════════════════
 function Footer() {
   return (
-    <footer style={{
+    <footer id="section-footer" style={{
       padding: "64px 56px", background: C.charcoal,
       display: "flex", justifyContent: "space-between", alignItems: "flex-end",
     }}>
@@ -1045,6 +1319,7 @@ function Footer() {
 export default function App() {
   const [view, setView] = useState("home");
   const [detail, setDetail] = useState(null);
+  const [selectedIssue, setSelectedIssue] = useState(null);
   const ref = useRef(null);
   const [scrollY, setScrollY] = useState(0);
 
@@ -1056,9 +1331,16 @@ export default function App() {
     return () => el.removeEventListener("scroll", h);
   }, []);
 
-  useEffect(() => { if (ref.current) ref.current.scrollTop = 0; }, [view, detail]);
+  useEffect(() => { if (ref.current) ref.current.scrollTop = 0; }, [view, detail, selectedIssue]);
 
   const goDetail = (a) => { setDetail(a); setView("detail"); };
+
+  const scrollToSection = (sectionId) => {
+    const el = ref.current;
+    if (!el) return;
+    const target = el.querySelector(`#section-${sectionId}`);
+    if (target) target.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div ref={ref} style={{
@@ -1075,10 +1357,10 @@ export default function App() {
         img { -webkit-user-drag:none; user-select:none; }
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
       `}</style>
-      <Nav view={view} setView={(v) => { setView(v); setDetail(null); }} scrollY={scrollY} />
+      <Nav view={view} setView={(v) => { setView(v); setDetail(null); setSelectedIssue(null); }} scrollY={scrollY} scrollToSection={scrollToSection} />
       {view === "home" && <Home goDetail={goDetail} />}
-      {view === "issues" && <IssuesPage />}
-      {view === "pages" && <PagesView />}
+      {view === "issues" && !selectedIssue && <IssuesPage onSelectIssue={(iss) => setSelectedIssue(iss)} />}
+      {view === "issues" && selectedIssue && <IssueDetailView issue={selectedIssue} onBack={() => setSelectedIssue(null)} />}
       {view === "detail" && <Detail article={detail} onBack={() => { setView("home"); setDetail(null); }} />}
     </div>
   );
